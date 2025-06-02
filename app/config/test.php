@@ -2,11 +2,8 @@
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/test_db.php';
 
-/**
- * Application configuration shared by all test types
- */
 return [
-    'id' => 'basic-tests',
+    'id' => 'test-app',
     'basePath' => dirname(__DIR__),
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
@@ -14,11 +11,14 @@ return [
     ],
     'language' => 'en-US',
     'components' => [
-        'db' => $db,
+        'db' => [
+            'class' => 'yii\db\Connection',
+            'dsn' => 'sqlite::memory:',          
+            'charset' => 'utf8',
+        ],
         'mailer' => [
             'class' => \yii\symfonymailer\Mailer::class,
             'viewPath' => '@app/mail',
-            // send all mails to a file by default.
             'useFileTransport' => true,
             'messageClass' => 'yii\symfonymailer\Message'
         ],
@@ -29,7 +29,9 @@ return [
             'showScriptName' => true,
         ],
         'user' => [
-            'identityClass' => 'app\models\User',
+            'identityClass' => app\models\User::class,
+            'enableSession' => false,
+            'enableAutoLogin' => false,
         ],
         'request' => [
             'cookieValidationKey' => 'test',

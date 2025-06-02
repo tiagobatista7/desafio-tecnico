@@ -1,0 +1,73 @@
+<?php
+
+namespace unit\controllers\Expense;
+
+use app\modules\api\controllers\ExpenseController;
+use app\modules\api\services\ExpenseService;
+use yii\web\Request;
+use yii\web\Response;
+use yii\web\User;
+use Yii;
+use Codeception\Test\Unit;
+
+class ActionIndexTest extends Unit
+{
+    private ExpenseController $controller;
+
+    protected function _before()
+    {
+        $this->controller = new ExpenseController('expense', Yii::$app->getModule('api'));
+
+        Yii::$app->set('user', new class extends User {
+            public $identityClass = \app\models\User::class;
+
+            public function getId()
+            {
+                return 1;
+            }
+
+            public function getIsGuest()
+            {
+                return false;
+            }
+        });
+
+        Yii::$app->set('request', new class extends Request {
+            public function getQueryParams()
+            {
+                return [];
+            }
+        });
+
+        Yii::$app->set('response', new Response());
+    }
+
+    public function testActionIndex()
+    {
+        $mockService = $this->make(ExpenseService::class, [
+            'list' => fn() => [
+                ['id' => 1, 'title' => 'Despesa 1', 'amount' => 100],
+                ['id' => 2, 'title' => 'Despesa 2', 'amount' => 200],
+            ]
+        ]);
+
+        $this->injectService($mockService);
+
+        $result = $this->controller->actionIndex();
+
+        $this->assertIsArray($result);
+        $this->assertCount(2, $result);
+        $this->assertEquals('Despesa 1', $result[0]['title']);
+        $this->assertEquals('Despesa 2', $result[1]['title']);
+
+        $this->assertEquals(200, Yii::$app->response->statusCode);
+    }
+
+    private function injectService($mockService): void
+    {
+        $ref = new \ReflectionClass($this->controller);
+        $prop = $ref->getProperty('expenseService');
+        $prop->setAccessible(true);
+        $prop->setValue($this->controller, $mockService);
+    }
+}

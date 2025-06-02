@@ -23,14 +23,15 @@ $config = [
         ],
         'user' => [
             'identityClass' => 'app\models\User',
-            'enableAutoLogin' => false,
+            'enableAutoLogin' => true,
             'enableSession' => false,
-            'loginUrl' => null,
         ],
         'jwt' => [
             'class' => \sizeg\jwt\Jwt::class,
-            'key' => 'sua-chave-secreta-muito-segura-aqui',
+            'key' => 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjgwODAiLCJpYXQiOjE3NDg4MjQ2NzEsImV4cCI6MTc0ODgyODI3MSwidWlkIjoyLCJlbWFpbCI6ImFkbWluQGFkbWluLmNvbSJ9.UBCUYGwJ8_dUA2kcegGIa62TD523foyE-2WTHkuegnA',
+            // 'jwtValidationData' => \app\components\CustomJwtValidationData::class,
         ],
+
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
@@ -49,28 +50,34 @@ $config = [
             ],
         ],
         'db' => $db,
-        /*
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
+            'enableStrictParsing' => false,
             'rules' => [
+                'POST api/auth/login' => 'api/auth/login',
             ],
         ],
-        */
     ],
+    'modules' => [
+        'api' => [
+            'class' => 'app\modules\api\Module',
+        ],
+    ],
+
     'params' => $params,
 ];
 
-if (YII_ENV_DEV) {
+if (YII_ENV === 'dev') {
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = [
         'class' => 'yii\debug\Module',
     ];
-
     $config['bootstrap'][] = 'gii';
     $config['modules']['gii'] = [
         'class' => 'yii\gii\Module',
     ];
 }
+
 
 return $config;
